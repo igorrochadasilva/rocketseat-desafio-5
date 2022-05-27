@@ -1,0 +1,51 @@
+{
+  "id": "82c6709a-3257-43ab-a0ee-abcbe97c49b7",
+  "uid": "unde-non-commodi",
+  "type": "posts",
+  "data": {
+    "title": "transform leading-edge infomediaries",
+    "subtitle": "revolutionize holistic ROI",
+    "author": "cultivate dynamic blockchains",
+    "banner": {
+      "dimensions": {
+        "width": 900,
+        "height": 500
+      },
+      "alt": "Placeholder image",
+      "copyright": null,
+      "url": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=900&h=500&fit=crop"
+    },
+    "content": [
+      {
+        "heading": "enable distributed relationships",
+        "body": [
+          {
+            "type": "paragraph",
+            "text": "Nisi excepteur culpa minim officia et do.",
+            "spans": []
+          }
+        ]
+      },
+      {
+        "heading": "engage synergistic eyeballs",
+        "body": [
+          {
+            "type": "paragraph",
+            "text": "Cupidatat eu mollit irure consequat. Eiusmod ex ipsum cillum do. Veniam sit ad anim sunt cupidatat ea aute duis.",
+            "spans": []
+          }
+        ]
+      },
+      {
+        "heading": "whiteboard mission-critical deliverables",
+        "body": [
+          {
+            "type": "paragraph",
+            "text": "Reprehenderit non anim nulla labore veniam nostrud tempor nostrud consequat est esse deserunt quis.",
+            "spans": []
+          }
+        ]
+      }
+    ]
+  }
+}
