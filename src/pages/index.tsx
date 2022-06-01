@@ -1,10 +1,17 @@
+/* eslint-disable react/button-has-type */
 import { FaCalendar, FaUser } from 'react-icons/fa';
 import { GetStaticProps } from 'next';
 import Link from 'next/link';
+import { useState } from 'react';
+import { format } from 'date-fns';
+import ptBR from 'date-fns/locale/pt-BR';
+import Head from 'next/head';
+import { FiClock, FiUser } from 'react-icons/fi';
 import { getPrismicClient } from '../services/prismic';
 
 import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
+import Header from '../components/Header';
 
 interface Post {
   uid?: string;
@@ -25,57 +32,113 @@ interface HomeProps {
   postsPagination: PostPagination;
 }
 
-export default function Home() {
+export default function Home({ postsPagination }: HomeProps): JSX.Element {
+  const formattedPost = postsPagination.results.map(post => {
+    return {
+      ...post,
+      first_publication_date: format(
+        new Date(post.first_publication_date),
+        'dd MMM yyyy',
+        {
+          locale: ptBR,
+        }
+      ),
+    };
+  });
+
+  const [posts, setPosts] = useState<Post[]>(formattedPost);
+  const [nextPage, setNextPage] = useState(postsPagination.next_page);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // eslint-disable-next-line consistent-return
+  async function handleNextPage(): Promise<void> {
+    if (currentPage !== 1 && nextPage === null) {
+      return;
+    }
+    const postsResults = await fetch(`${nextPage}`).then(response =>
+      response.json()
+    );
+
+    setNextPage(postsResults.next_page);
+    setCurrentPage(postsResults.page);
+
+    const newPosts = postsResults.results.map(post => {
+      return {
+        uid: post.uid,
+        first_publication_date: format(
+          new Date(post.first_publication_date),
+          'dd MMM yyyy',
+          {
+            locale: ptBR,
+          }
+        ),
+        data: {
+          title: post.data.title,
+          subtitle: post.data.subtitle,
+          author: post.data.author,
+        },
+      };
+    });
+
+    setPosts([...posts, ...newPosts]);
+  }
+
   return (
-    <main className={styles.contentContainer}>
-      <div className={styles.logo}>
-        <img src="/images/Logo.svg" alt="Logo" />
-      </div>
-      <div className={styles.posts}>
-        <Link href="/posts/">
-          <a className={styles.post}>
-            <strong>O mundo mudou e agora há desafios</strong>
-            <p>ash uaejii aiefjaiej aeif aiefjaeifanefiai efaiefaiefiae fa </p>
-            <span>
-              <FaCalendar /> 18 Abr 2021
-              <FaUser /> Danilo Vieira
-            </span>
-          </a>
-        </Link>
-        <Link href="/posts/">
-          <a className={styles.post}>
-            <strong>O mundo mudou e agora há desafios</strong>
-            <p>ash uaejii aiefjaiej aeif aiefjaeifanefiai efaiefaiefiae fa </p>
-            <span>
-              <FaCalendar /> 18 Abr 2021
-              <FaUser /> Danilo Vieira
-            </span>
-          </a>
-        </Link>
-        <Link href="/posts/">
-          <a className={styles.post}>
-            <strong>O mundo mudou e agora há desafios</strong>
-            <p>ash uaejii aiefjaiej aeif aiefjaeifanefiai efaiefaiefiae fa </p>
-            <span>
-              <FaCalendar /> 18 Abr 2021
-              <FaUser /> Danilo Vieira
-            </span>
-          </a>
-        </Link>
-      </div>
-      <div className={styles.loading}>
-        <button>Carregar mais posts</button>
-      </div>
-    </main>
+    <>
+      <Head>
+        <title> Blog | News </title>
+      </Head>
+      <main className={commonStyles.container}>
+        <Header />
+        <div className={styles.posts}>
+          {posts.map((post: Post) => (
+            <Link key={post.uid} href={`/post/${post.uid}`}>
+              <a className={styles.post}>
+                <strong>{post.data.title}</strong>
+                <p>{post.data.subtitle}</p>
+                <ul>
+                  <li>
+                    <FaCalendar /> {post.first_publication_date}
+                  </li>
+                  <li>
+                    <FiUser />
+                    {post.data.author}
+                  </li>
+                </ul>
+              </a>
+            </Link>
+          ))}
+
+          {nextPage && (
+            <button type="button" onClick={handleNextPage}>
+              Carregar mais posts
+            </button>
+          )}
+        </div>
+      </main>
+    </>
   );
 }
 
 export const getStaticProps: GetStaticProps = async () => {
   const prismic = getPrismicClient({});
-  const postsResponse = await prismic.getByType('posts', { pageSize: 2 });
+  const postsResponse = await prismic.getByType('posts', { pageSize: 1 });
+
+  const posts = postsResponse.results.map(post => {
+    return {
+      uid: post.uid,
+      first_publication_date: post.first_publication_date,
+      data: {
+        title: post.data.title,
+        subtitle: post.data.subtitle,
+        author: post.data.author,
+      },
+    };
+  });
+
   const postsPagination = {
-    results: postsResponse.results,
-    next_page: postsResponse.results_per_page,
+    next_page: postsResponse.next_page,
+    results: posts,
   };
 
   return {
